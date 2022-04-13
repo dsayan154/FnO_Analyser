@@ -1,0 +1,16 @@
+output_excel_file: 'C:\\tmp\\NSE_OPTION_CHAIN\\Output.xlsx' ## '\' must be esacaped with additional \
+run_interval_mins: 3
+stocks:
+  names:
+  - Reliance
+  - HDFC
+  - HDFCBank
+  - SBIN
+  oi_records_upper_lower_limit: 10
+  price_multiple: 1
+# indices:
+#   names:
+#   - NIFTY
+#   - BANKNifty
+#   price_multiple: 100
+#   oi_records_upper_lower_limit: 10
