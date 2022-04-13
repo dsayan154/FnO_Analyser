@@ -38,10 +38,14 @@ def createUpdateDashboardSheet(outputFile: str, sheetName: str, df: pd.DataFrame
     '''
     Creates or updates the dashboard sheet with the activity in stocks mentioned in the df dataframe. Returns FileExists error if inputFile does not exist.
     '''
+    logging.debug('inside createUpdateDashboardSheet')
+    logging.debug(f'sheet name: {sheetName}')
+    logging.debug(f'dataframe to be written: \n{df}')
     fileExists = exists(outputFile)
     if not fileExists:
         logging.debug(f'{outputFile} does not exist, creating now.')
         wb = xlsxwriter.Workbook(outputFile)
+        logging.debug(f'{outputFile} does not exist, creating now.')
         wb.close()
     try:
         wb = xw.Book(outputFile)
@@ -52,14 +56,14 @@ def createUpdateDashboardSheet(outputFile: str, sheetName: str, df: pd.DataFrame
             logging.warn(f'{e}')
             sh = wb.sheets(sheetName)
         sh.range('A2').options(pd.DataFrame, index=False, header=False).value = df
-        sh.range('C1:F1').merge()
-        sh.range('A1').value = ['SYMBOL', 'STRIKE PRICE', 'ACTIVITY']
-        sh.range('A1').expand('right').api.HorizontalAlignment = xw.constants.HAlign.xlHAlignCenter
-        sh.range('A1').expand('table').api.WrapText = True
+        # sh.range('C1:F1').merge()
+        sh.range('A1').value = ['SYMBOL', 'STRIKE PRICE', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY']
+        # sh.range('A1').expand('right').api.HorizontalAlignment = xw.constants.HAlign.xlHAlignCenter
+        sh.tables.add(sh.range('A1').expand('table'), table_style_name='TableStyleMedium13', has_headers=True, )
         logging.info('Dashboard sheet updated')
         wb.save()
         logging.info(f'Workbook saved: {sh.name}')
     except FileExistsError as e:
         raise e
-    except:
+    except Exception as e:
         raise e

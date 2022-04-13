@@ -1,17 +1,22 @@
+import logging
 from conditions.conditions import CRITERIASTYPES
 import pandas as pd
-import time
+import time, copy
+import numpy as np
 
 def calculateAndUpdate(optionsDf: pd.DataFrame) -> pd.DataFrame:
     '''
     Updates the optionsDf after making calculation on the optionsDf based on writing and unwinding criterias mentioned in the conditions.condtions module.
     '''
-    criteriaTypes = CRITERIASTYPES
+    logging.debug('inside calculateAndUpdate')
+    logging.debug(f'optionsDf: \n{optionsDf}')
+    criteriaTypes = copy.deepcopy(CRITERIASTYPES)
     for criteriaType in criteriaTypes:
         for criteria in criteriaType:
             now = time.localtime()
             criteria['start_time'] = time.mktime((now[0], now[1], now[2], criteria['start_time'][0], criteria['start_time'][1], criteria['start_time'][2], now[6], now[7], now[8]))
             criteria['end_time'] = time.mktime((now[0], now[1], now[2], criteria['end_time'][0], criteria['end_time'][1], criteria['end_time'][2], now[6], now[7], now[8]))
+    logging.debug(f'criterias after time updation: {criteriaTypes}')
     peWriting = []
     ceWriting  = []
     peUnwinding = []
@@ -50,19 +55,24 @@ def appendToDashboardDF(existingDashboardDf: pd.DataFrame, symbol:str, rawDf: pd
     '''
     Returns a dataframe concatinating an existing dataframe with filtered rows of either PE_WRITING, CE_WRITING, PE_UNWINDING, CE_UNWINDING set to 'TRUE' in rawDf. This function can accept an empty dataframe as well.
     '''
+    logging.debug('inside appendToDashboardDF')
+    logging.debug(f'existingDashboardDf: \n{existingDashboardDf}')
+    logging.debug(f'rawDf: \n{rawDf}')
     filteredData = rawDf[(rawDf['PE_WRITING'] == 'TRUE') | (rawDf['CE_WRITING'] == 'TRUE') | (rawDf['PE_UNWINDING'] == 'TRUE') | (rawDf['CE_UNWINDING'] == 'TRUE')].filter(['strikePrice', 'PE_WRITING', 'PE_UNWINDING', 'CE_WRITING', 'CE_UNWINDING'], axis=1).copy(deep=True)
-    stockSeries = pd.Series([symbol])
-    for _,row in filteredData.iterrows():
-        if row['PE_WRITING'] == 'TRUE':
-            row['PE_WRITING'] = 'PE_WRITING'
-        if row['PE_UNWINDING'] == 'TRUE':
-            row['PE_UNWINDING'] = 'PE_UNWINDING'
-        if row['CE_WRITING'] == 'TRUE':
-            row['CE_WRITING'] = 'CE_WRITING'
-        if row['CE_UNWINDING'] == 'TRUE':
-            row['CE_UNWINDING'] = 'CE_UNWINDING'
-    filteredData.insert(0, 'SYMBOL', stockSeries)
-    filteredData.rename(columns={'strikePrice': 'STRIKE PRICE'})
-    filteredData['SYMBOL'].repeat(len(filteredData))
-    return pd.concat([existingDashboardDf, filteredData])
+    logging.debug(f'filteredData with only TRUE criterias: \n{filteredData}\n{filteredData.info()}')
+    filteredData.loc[filteredData['PE_WRITING'] == 'TRUE', 'PE_WRITING'] = 'PE_WRITING'
+    filteredData.loc[filteredData['PE_WRITING'] == 'FALSE', 'PE_WRITING'] = np.NaN
+    filteredData.loc[filteredData['PE_UNWINDING'] == 'TRUE', 'PE_UNWINDING'] = 'PE_UNWINDING'
+    filteredData.loc[filteredData['PE_UNWINDING'] == 'FALSE', 'PE_UNWINDING'] = np.NaN
+    filteredData.loc[filteredData['CE_WRITING'] == 'TRUE', 'CE_WRITING'] = 'CE_WRITING'
+    filteredData.loc[filteredData['CE_WRITING'] == 'FALSE', 'CE_WRITING'] = np.NaN
+    filteredData.loc[filteredData['CE_UNWINDING'] == 'TRUE', 'CE_UNWINDING'] = 'CE_UNWINDING'
+    filteredData.loc[filteredData['CE_UNWINDING'] == 'FALSE', 'CE_UNWINDING'] = np.NaN
+    logging.debug(f'filteredData after changing TRUE to column names: \n{filteredData}')
+    filteredData.insert(0, 'Symbol', [symbol]*len(filteredData))
+    filteredData.rename(columns={'strikePrice': 'Strike Price'})
+    logging.debug(f'final filteredData: \n{filteredData}')
+    finalDf = existingDashboardDf.append(filteredData, ignore_index=True)
+    logging.debug(f'final dashboard df before returning: \n{finalDf}')
+    return finalDf
     
