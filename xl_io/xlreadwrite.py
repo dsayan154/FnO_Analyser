@@ -55,6 +55,7 @@ def createUpdateDashboardSheet(outputFile: str, sheetName: str, df: pd.DataFrame
         except ValueError as e:
             logging.warn(f'{e}')
             sh = wb.sheets(sheetName)
+            sh.clear()
         sh.range('A2').options(pd.DataFrame, index=False, header=False).value = df
         # sh.range('C1:F1').merge()
         sh.range('A1').value = ['SYMBOL', 'STRIKE PRICE', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY']
