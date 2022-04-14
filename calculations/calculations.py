@@ -9,6 +9,7 @@ def calculateAndUpdate(optionsDf: pd.DataFrame) -> pd.DataFrame:
     Updates the optionsDf after making calculation on the optionsDf based on writing and unwinding criterias mentioned in the conditions.condtions module.
     '''
     logging.debug('inside calculateAndUpdate')
+    optionsDf: pd.DataFrame = optionsDf.copy(deep=True)
     logging.debug(f'optionsDf: \n{optionsDf}')
     criteriaTypes = copy.deepcopy(CRITERIASTYPES)
     for criteriaType in criteriaTypes:
@@ -58,7 +59,7 @@ def appendToDashboardDF(existingDashboardDf: pd.DataFrame, symbol:str, rawDf: pd
     logging.debug('inside appendToDashboardDF')
     logging.debug(f'existingDashboardDf: \n{existingDashboardDf}')
     logging.debug(f'rawDf: \n{rawDf}')
-    filteredData = rawDf[(rawDf['PE_WRITING'] == 'TRUE') | (rawDf['CE_WRITING'] == 'TRUE') | (rawDf['PE_UNWINDING'] == 'TRUE') | (rawDf['CE_UNWINDING'] == 'TRUE')].filter(['strikePrice', 'PE_WRITING', 'PE_UNWINDING', 'CE_WRITING', 'CE_UNWINDING'], axis=1).copy(deep=True)
+    filteredData = rawDf[(rawDf['PE_WRITING'] == 'TRUE') | (rawDf['CE_WRITING'] == 'TRUE') | (rawDf['PE_UNWINDING'] == 'TRUE') | (rawDf['CE_UNWINDING'] == 'TRUE')].copy(deep=True).filter(['strikePrice', 'PE_WRITING', 'PE_UNWINDING', 'CE_WRITING', 'CE_UNWINDING'], axis=1).copy(deep=True)
     logging.debug(f'filteredData with only TRUE criterias: \n{filteredData}\n{filteredData.info()}')
     filteredData.loc[filteredData['PE_WRITING'] == 'TRUE', 'PE_WRITING'] = 'PE_WRITING'
     filteredData.loc[filteredData['PE_WRITING'] == 'FALSE', 'PE_WRITING'] = np.NaN
