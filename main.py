@@ -60,7 +60,7 @@ if __name__ == '__main__':
         while True:
             mktStatus = capitalMarketStatus()
             logging.debug(f'{mktStatus}')
-            if mktStatus['marketStatusMessage'] == 'Market is Closed':
+            if mktStatus['marketStatusMessage'] != 'Market is Closed':
                 logging.info(f'setting input from input file: {inputFile}')
                 setInput()
                 logging.info(f'starting to process input')
