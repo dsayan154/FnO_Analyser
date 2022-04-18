@@ -58,7 +58,7 @@ def createUpdateDashboardSheet(outputFile: str, sheetName: str, df: pd.DataFrame
             sh.clear()
         sh.range('A2').options(pd.DataFrame, index=False, header=False).value = df
         # sh.range('C1:F1').merge()
-        sh.range('A1').value = ['SYMBOL', 'STRIKE PRICE', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY']
+        sh.range('A1').value = ['SYMBOL', 'STRIKE PRICE', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY', 'SUPPORT 1', 'SUPPORT 2', 'RESISTANCE 1', 'RESISTANCE 2']
         # sh.range('A1').expand('right').api.HorizontalAlignment = xw.constants.HAlign.xlHAlignCenter
         sh.tables.add(sh.range('A1').expand('table'), table_style_name='TableStyleMedium13', has_headers=True, )
         logging.info('Dashboard sheet updated')
@@ -68,3 +68,29 @@ def createUpdateDashboardSheet(outputFile: str, sheetName: str, df: pd.DataFrame
         raise e
     except Exception as e:
         raise e
+
+
+## TODO:
+##   COMPLETE THE FOLLOWING FUNCTION
+# def mergeSymbolDuplicateCellsDown(outputFile: str, sheetName: str, symbol: str, symbolColumn: str = 'A', symbolValueStartRow: int=2) -> None:
+#     '''
+#     Merge cells for stock 'symbol' with duplicate values downwards starting from startCell
+#     '''
+#     try:
+#         wb = xw.Book(outputFile)
+#         sh = wb.sheets(sheetName)
+#         symbols = sh.range(f'{symbolColumn}{str(symbolValueStartRow)}').expand('down')
+#         for symbol in symbols:
+            
+#         sh.range('A2').options(pd.DataFrame, index=False, header=False).value = df
+#         # sh.range('C1:F1').merge()
+#         sh.range('A1').value = ['SYMBOL', 'STRIKE PRICE', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY', 'SUPPORT 1', 'SUPPORT 2', 'RESISTANCE 1', 'RESISTANCE 2']
+#         # sh.range('A1').expand('right').api.HorizontalAlignment = xw.constants.HAlign.xlHAlignCenter
+#         sh.tables.add(sh.range('A1').expand('table'), table_style_name='TableStyleMedium13', has_headers=True, )
+#         logging.info('Dashboard sheet updated')
+#         wb.save()
+#         logging.info(f'Workbook saved: {sh.name}')
+#     except FileExistsError as e:
+#         raise e
+#     except Exception as e:
+#         raise e

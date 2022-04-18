@@ -52,9 +52,9 @@ def calculateAndUpdate(optionsDf: pd.DataFrame) -> pd.DataFrame:
     optionsDf['CE_UNWINDING']=ceUnwinding
     return optionsDf
 
-def appendToDashboardDF(existingDashboardDf: pd.DataFrame, symbol:str, rawDf: pd.DataFrame):
+def appendToDashboardDF(existingDashboardDf: pd.DataFrame, symbol:str, rawDf: pd.DataFrame, supprtResistancePrices: dict):
     '''
-    Returns a dataframe concatinating an existing dataframe with filtered rows of either PE_WRITING, CE_WRITING, PE_UNWINDING, CE_UNWINDING set to 'TRUE' in rawDf. This function can accept an empty dataframe as well.
+    Returns a dataframe concatinating an existing dataframe with filtered rows of either PE_WRITING, CE_WRITING, PE_UNWINDING, CE_UNWINDING set to 'TRUE' in rawDf alongwith the stock symbol, highest and 2nd highest tradevolumes CE/PR strike prices. This function can accept an empty dataframe as well.
     '''
     logging.debug('inside appendToDashboardDF')
     logging.debug(f'existingDashboardDf: \n{existingDashboardDf}')
@@ -71,9 +71,24 @@ def appendToDashboardDF(existingDashboardDf: pd.DataFrame, symbol:str, rawDf: pd
     filteredData.loc[filteredData['CE_UNWINDING'] == 'FALSE', 'CE_UNWINDING'] = np.NaN
     logging.debug(f'filteredData after changing TRUE to column names: \n{filteredData}')
     filteredData.insert(0, 'Symbol', [symbol]*len(filteredData))
+    filteredData['Support 1'] = supprtResistancePrices['pePrices'][1]
+    filteredData['Support 2'] = supprtResistancePrices['pePrices'][0]
+    filteredData['Resistance 1'] = supprtResistancePrices['cePrices'][0]
+    filteredData['Resistance 2'] = supprtResistancePrices['cePrices'][1]
     filteredData.rename(columns={'strikePrice': 'Strike Price'})
     logging.debug(f'final filteredData: \n{filteredData}')
     finalDf = existingDashboardDf.append(filteredData, ignore_index=True)
     logging.debug(f'final dashboard df before returning: \n{finalDf}')
     return finalDf
-    
+
+def getSupportResistancePricesCePe(optsDf: pd.DataFrame) -> dict:
+    '''
+    Returns a dict containing strike prices at the highest and second highest CE/PE volumes, takes the options chain dataframe as input
+    '''
+    logging.debug('inside getSupportResistancePricesCePe')
+    logging.debug(f'dataframe to parse: \n{optsDf}\n{optsDf.info()}')
+    pePrices = optsDf.loc[optsDf['PE.totalTradedVolume'].isin(optsDf['PE.totalTradedVolume'].nlargest(2))]['strikePrice'].tolist()
+    cePrices = optsDf.loc[optsDf['CE.totalTradedVolume'].isin(optsDf['CE.totalTradedVolume'].nlargest(2))]['strikePrice'].tolist()
+    supprtResistancePrices = {'pePrices': pePrices, 'cePrices': cePrices}
+    logging.debug(f'support and resistance prices fetched: {supprtResistancePrices}')
+    return supprtResistancePrices

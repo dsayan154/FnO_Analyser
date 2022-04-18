@@ -10,11 +10,17 @@ def capitalMarketStatus() -> dict:
     returns the current status of the Capital Market(NIFTY) in form of dict which contains other information like next trading date, etc
     '''
     logging.debug('inside capitalMarketStatus')
-    marketStatus = [market for market in nse.market_status()['marketState'] if market['market'] == 'Capital Market']
-    if len(marketStatus) != 0:
-        return marketStatus[0]
-    else:
-        raise ValueError(f'Capital Market not found in market status. ')
+    try:
+        marketStatus = [market for market in nse.market_status()['marketState'] if market['market'] == 'Capital Market']
+        if len(marketStatus) != 0:
+            return marketStatus[0]
+        else:
+            raise ValueError(f'Capital Market not found in market status. ')
+    except ValueError as e:
+        raise e
+    except Exception as e:
+        logging.debug(f'error occurred in getOptionChain: {e.with_traceback()}')
+        pass
 
 def getOptionChain(symbol:str, recordsLimitUpperLower: int = 10, priceMultiple:int = 1) -> pd.DataFrame:
     '''
@@ -30,6 +36,6 @@ def getOptionChain(symbol:str, recordsLimitUpperLower: int = 10, priceMultiple:i
         filteredDf['expiryDate'] = pd.to_datetime(filteredDf['expiryDate'], format='%Y-%m-%d')
         filteredDf['expiryDate'] = filteredDf['expiryDate'].astype(str)
     except Exception as e:
-        # logging.debug(f'{e.with_traceback()}')
-        raise e
+        logging.debug(f'error occurred in getOptionChain: {e.with_traceback()}')
+        pass
     return filteredDf
