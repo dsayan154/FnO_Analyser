@@ -5,7 +5,7 @@ import pandas as pd, requests
 
 logging.basicConfig(level=logging.DEBUG)
 stockOptsPage = {
-                    'url': 'https://www.moneycontrol.com/stocks/fno/marketstats/options/active_value/homebody.php?opttopic=active_value&optinst=stkopt&sel_mth=1&sort_order=0', 
+                    'url': 'https://www.moneycontrol.com/stocks/fno/marketstats/options/active_value/homebody.php?opttopic=active_value&optinst=stkopt&sel_mth=all&sort_order=0', 
                     'tbl_attr': {'class': 'tblList'}, 
                     'cols_to_split': {
                                         'High Low': ['High', 'Low'], 
@@ -13,7 +13,7 @@ stockOptsPage = {
                                     }
                 }
 stockFutPage = {
-                    'url': 'https://www.moneycontrol.com/stocks/fno/marketstats/futures/most_active/homebody.php?opttopic=most_active&optinst=stkfut&sel_mth=1&sort_order=0', 
+                    'url': 'https://www.moneycontrol.com/stocks/fno/marketstats/futures/most_active/homebody.php?opttopic=most_active&optinst=stkfut&sel_mth=all&sort_order=0', 
                     'tbl_attr': {'class': 'tblList'},
                     'cols_to_split': {
                                             'High Low': ['High', 'Low'], 
@@ -22,7 +22,7 @@ stockFutPage = {
                 }
 commonHeaders = {'user-agent': 'fno_analyser'}
 
-def getDataFrame(instrument:str, expiryMonth:int=1, headers:dict=commonHeaders) -> pd.DataFrame:
+def getDataFrame(instrument:str, expiryDate:str, headers:dict=commonHeaders) -> pd.DataFrame:
     '''
     scrapes moneycontrol.com and returns a pandas dataframe containing either stock options chain or futures, depending on the 'instrument' parameter passed. The returned dataframe is sorted decreasingly by 'Value (Rs. Lakh)' column.
     ### Parameters
@@ -42,17 +42,18 @@ def getDataFrame(instrument:str, expiryMonth:int=1, headers:dict=commonHeaders) 
         instrumentDetails = stockFutPage
     else:
         raise ValueError(f'invalid instrument passed: {instrument}, accepted values: futures, options')
-    if 3 < expiryMonth or expiryMonth < 0:
-        raise ValueError(f'expiryMonth should be either 1, 2, 3. got: {expiryMonth}')
+    # if 3 < expiryMonth or expiryMonth < 0:
+    #     raise ValueError(f'expiryMonth should be either 1, 2, 3. got: {expiryMonth}')
     url=instrumentDetails['url']
-    urlParts = parse.urlparse(url)
-    qs = parse.parse_qsl(urlParts.query)
-    qs[2] = ('sel_mth', str(expiryMonth))
-    url = parse.urlunparse((urlParts.scheme, urlParts.netloc, urlParts.path, urlParts.params, parse.urlencode(qs), urlParts.fragment))
+    # urlParts = parse.urlparse(url)
+    # qs = parse.parse_qsl(urlParts.query)
+    # qs[2] = ('sel_mth', str(expiryMonth))
+    # url = parse.urlunparse((urlParts.scheme, urlParts.netloc, urlParts.path, urlParts.params, parse.urlencode(qs), urlParts.fragment))
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
         raise response.raise_for_status()
     df = pd.read_html(_getTable(response.text, instrumentDetails['tbl_attr']))[0]
+    df = df[(df['Expiry Date'] == expiryDate)].reset_index(drop=True)
     logging.debug(f'dataframe generated: {df}')
     logging.info(f'Splitting columns: {instrumentDetails["cols_to_split"]}')
     for col, newcols in instrumentDetails['cols_to_split'].items():

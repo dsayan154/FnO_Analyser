@@ -22,3 +22,4 @@ soupsieve==2.3.2
 urllib3==1.26.9
 XlsxWriter==3.0.3
 xlwings==0.27.6
+git+https://github.com/StreamAlpha/pynse.git@master

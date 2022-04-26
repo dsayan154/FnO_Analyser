@@ -32,9 +32,13 @@ def createUpdateSheet(outputFile: str, sheetName: str, df: pd.DataFrame, startCe
         wb.save()
         logging.info(f'saved workbook: {outputFile}')
     except Exception as e:
+        logging.debug(f'error occured for sheet: {sheetName}')
         raise e
+    finally:
+        wb.save()
+        wb.close()
 
-def createUpdateDashboardSheet(outputFile: str, sheetName: str, df: pd.DataFrame) -> None:
+def createUpdateDashboardSheet(outputFile: str, sheetName: str, df: pd.DataFrame, mergeSymbolCol: bool = True, startCell: str = 'A2') -> None:
     '''
     Creates or updates the dashboard sheet with the activity in stocks mentioned in the df dataframe. Returns FileExists error if inputFile does not exist.
     '''
@@ -55,12 +59,12 @@ def createUpdateDashboardSheet(outputFile: str, sheetName: str, df: pd.DataFrame
         except ValueError as e:
             logging.warn(f'{e}')
             sh = wb.sheets(sheetName)
-            sh.clear()
-        sh.range('A2').options(pd.DataFrame, index=False, header=False).value = df
+            # sh.clear()
+        sh.range(startCell).options(pd.DataFrame, index=False, header=True).value = df
         # sh.range('C1:F1').merge()
-        sh.range('A1').value = ['SYMBOL', 'STRIKE PRICE', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY', 'SUPPORT 1', 'SUPPORT 2', 'RESISTANCE 1', 'RESISTANCE 2']
+        # sh.range('A1').value = ['SYMBOL', 'STRIKE PRICE', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY', 'ACTIVITY', 'SUPPORT 1', 'SUPPORT 2', 'RESISTANCE 1', 'RESISTANCE 2']
         # sh.range('A1').expand('right').api.HorizontalAlignment = xw.constants.HAlign.xlHAlignCenter
-        sh.tables.add(sh.range('A1').expand('table'), table_style_name='TableStyleMedium13', has_headers=True, )
+        sh.tables.add(sh.range(startCell).expand('table'), table_style_name='TableStyleMedium13', has_headers=True, )
         logging.info('Dashboard sheet updated')
         wb.save()
         logging.info(f'Workbook saved: {sh.name}')
@@ -68,11 +72,11 @@ def createUpdateDashboardSheet(outputFile: str, sheetName: str, df: pd.DataFrame
         raise e
     except Exception as e:
         raise e
+    finally:
+        wb.save()
+        wb.close()
 
-
-## TODO:
-##   COMPLETE THE FOLLOWING FUNCTION
-# def mergeSymbolDuplicateCellsDown(outputFile: str, sheetName: str, symbol: str, symbolColumn: str = 'A', symbolValueStartRow: int=2) -> None:
+# def _mergeSymbolCol(outputFile: str, sheetName: str, symbol: str, symbolColumn: str = 'A', symbolValueStartRow: int=2) -> None:
 #     '''
 #     Merge cells for stock 'symbol' with duplicate values downwards starting from startCell
 #     '''

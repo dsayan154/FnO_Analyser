@@ -1,11 +1,39 @@
 output_excel_file: 'C:\\tmp\\NSE_OPTION_CHAIN\\Output.xlsx' ## '\' must be esacaped with additional \
 run_interval_mins: 3
+expiry_date: 28-Apr-22 ## DD-MMM-YY
 stocks:
   names:
-  - Reliance
+  - ADANIENT
+  - ADANIPORTS
+  - APOLLOHOSP
+  - ASIANPAINT
+  - AXISBANK
+  - BAJFINANCE
+  - BHARTIARTL
+  - DRREDDY
+  - HCLTECH
   - HDFC
-  - HDFCBank
+  - HDFCBANK
+  - HINDUNILVR
+  - ICICIBANK
+  - INDUSINDBK
+  - INFY
+  - KOTAKBANK
+  - LT
+  - MARUTI
+  - MINDTREE
+  - PVR
+  - RELIANCE
   - SBIN
+  - SUNPHARMA
+  - TATACHEM
+  - TATAMOTORS
+  - TATASTEEL
+  - TCS
+  - TECHM
+  - TITAN
+  - ULTRACEMCO
+  - UPL
   oi_records_upper_lower_limit: 10
   price_multiple: 1
 # indices:
