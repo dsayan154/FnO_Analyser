@@ -5,6 +5,7 @@ charset-normalizer==2.0.12
 dateutils==0.6.12
 et-xmlfile==1.1.0
 idna==3.3
+lxml==4.8.0
 nsetools==1.0.11
 numpy==1.22.3
 openpyxl==3.0.9
