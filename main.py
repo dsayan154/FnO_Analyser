@@ -68,8 +68,8 @@ def processInput():
         logging.debug(f'calling createUpdateSheet for {stockName}')
         createUpdateSheet(outputFile, stockName, updatedDf, startCell='A2')
     logging.debug(f'calling createUpdateDashboardSheet')
-    createUpdateDashboardSheet(outputFile, 'Dashboard', optionsDashboardDf)
-    createUpdateDashboardSheet(outputFile, 'Dashboard', futuresDashboardDf,False,'K2')
+    createUpdateDashboardTable(outputFile, sheetName = 'Dashboard', tableName = 'OptionsDashboard', startCell = 'A2', dataFrame = optionsDashboardDf)
+    createUpdateDashboardTable(outputFile, sheetName = 'Dashboard', tableName = 'FuturesDashboard', startCell = 'K2', dataFrame = futuresDashboardDf)
     createUpdateSheet(input['output_excel_file'], 'Stock Options', mcOptsDf, startCell='A2')
 
 if __name__ == '__main__':

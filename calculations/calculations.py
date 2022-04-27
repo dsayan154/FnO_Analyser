@@ -69,7 +69,7 @@ def createOptionsDashboardDf(symbol: str, optionsChainDf:pd.DataFrame, optionsDf
     filteredOptionsChainDf = filteredOptionsChainDf.rename(columns={'PE_WRITING': 'Activity1', 'CE_WRITING': 'Activity2', 'PE_UNWINDING': 'Activity3', 'CE_UNWINDING': 'Activity4', 'strikePrice': 'Strike Price'}).reset_index(drop=True)
     # filteredOptionsChainDf.sort_values('Strike Price')
     filteredOptionsChainDf = filteredOptionsChainDf[['Symbol', 'Strike Price', 'Activity1', 'Activity2', 'Activity3', 'Activity4']]
-    optionsDf = optionsDf[(optionsDf['Symbol'] == symbol)&(optionsDf['Strike Price'].isin(filteredOptionsChainDf['Strike Price']))][['Strike Price','Option Type','Value (Rs. Lakh)']].reset_index(drop=True)
+    optionsDf = optionsDf[(optionsDf['Symbol'] == symbol)&(optionsDf['Strike Price'].isin(filteredOptionsChainDf['Strike Price']))][['Strike Price','Option Type','Value (Rs. Lakh)']].reset_index(drop=True).copy(deep=True)
     optionsDfPeValue = optionsDf[(optionsDf['Option Type'] == 'PE')].rename(columns={'Value (Rs. Lakh)': 'PE.Value'}).drop('Option Type', axis='columns').reset_index(drop=True)
     optionsDfCeValue = optionsDf[(optionsDf['Option Type'] == 'CE')].rename(columns={'Value (Rs. Lakh)': 'CE.Value'}).drop('Option Type', axis='columns').reset_index(drop=True)
     optionsDfCePeValue = optionsDfCeValue.join(optionsDfPeValue.set_index('Strike Price'), on='Strike Price', how='left')
