@@ -79,7 +79,7 @@ if __name__ == '__main__':
             setInput()
             mktStatus = nse.capitalMarketStatus()
             logging.debug(f'{mktStatus}')
-            if "Close" in mktStatus['marketStatus']:
+            if "Close" not in mktStatus['marketStatus']:
                 logging.info(f'starting to process input')
                 processInput()
                 logging.info(f'getting stock options from moneycontrol and writing as a sheet in excel')
