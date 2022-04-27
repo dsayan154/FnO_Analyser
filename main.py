@@ -66,10 +66,10 @@ def processInput():
         futuresDashboardDf = pd.concat([futuresDashboardDf, createFuturesDashboardDf(stockName, mcFutDf, supportResistancePrices)]).sort_values(by='SYMBOL')
         # dashBoardDf = appendToDashboardDF(dashBoardDf, stockName, updatedDf, supportResistancePrices)
         logging.debug(f'calling createUpdateSheet for {stockName}')
-        createUpdateSheet(outputFile, stockName, updatedDf, startCell='A2')
+        createUpdateSheet(outputFile, stockName, updatedDf, startCell='A1')
     logging.debug(f'calling createUpdateDashboardSheet')
-    createUpdateDashboardTable(outputFile, sheetName = 'Dashboard', tableName = 'OptionsDashboard', startCell = 'A2', dataFrame = optionsDashboardDf)
-    createUpdateDashboardTable(outputFile, sheetName = 'Dashboard', tableName = 'FuturesDashboard', startCell = 'K2', dataFrame = futuresDashboardDf)
+    createUpdateDashboardTable(outputFile, sheetName = 'Dashboard', tableName = 'OptionsDashboard', startCell = 'A1', dataFrame = optionsDashboardDf)
+    createUpdateDashboardTable(outputFile, sheetName = 'Dashboard', tableName = 'FuturesDashboard', startCell = 'K1', dataFrame = futuresDashboardDf)
     createUpdateSheet(input['output_excel_file'], 'Stock Options', mcOptsDf, startCell='A2')
 
 if __name__ == '__main__':

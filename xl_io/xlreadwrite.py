@@ -1,4 +1,5 @@
 import logging, xlsxwriter
+from turtle import update
 import xlwings as xw
 import pandas as pd
 import datetime as dt
@@ -19,6 +20,10 @@ def createUpdateSheet(outputFile: str, sheetName: str, df: pd.DataFrame, startCe
         logging.debug(f'{outputFile} does not exist, creating now.')
         wb = xlsxwriter.Workbook(outputFile)
         wb.close()
+    timeStampCell = startCell
+    startCol = startCell[0]
+    startRow = str(int(startCell[1])+1)
+    startCell = startCol + startRow
     try:
         wb = xw.Book(outputFile)
         sh = None
@@ -29,7 +34,9 @@ def createUpdateSheet(outputFile: str, sheetName: str, df: pd.DataFrame, startCe
             sh = wb.sheets(sheetName)
         sh.range(startCell).options(pd.DataFrame, index=False, dates=False).value = df
         logging.info(f'updated sheet: {sh.name}')
-        # wb.save()
+        logging.info(f'updating timestamp for sheet: {sheetName}')
+        sh[timeStampCell].value = f'As on: {dt.datetime.now().strftime("%d/%m/%Y %H:%M:%S")}'
+        sh[timeStampCell].wrap_text = True
         logging.info(f'saved workbook: {outputFile}')
     except Exception as e:
         logging.debug(f'error occured for sheet: {sheetName}')
@@ -46,6 +53,10 @@ def createUpdateDashboardTable(outputFile: str, sheetName: str, tableName: str, 
     logging.debug(f'sheet name: {sheetName}')
     logging.debug(f'dataframe to be written: \n{dataFrame}')
     fileExists = exists(outputFile)
+    timeStampCell = startCell
+    startCol = startCell[0]
+    startRow = str(int(startCell[1])+1)
+    startCell = startCol + startRow
     if not fileExists:
         logging.debug(f'{outputFile} does not exist, creating now.')
         wb = xlsxwriter.Workbook(outputFile)
@@ -71,7 +82,9 @@ def createUpdateDashboardTable(outputFile: str, sheetName: str, tableName: str, 
         # sh.range('A1').expand('right').api.HorizontalAlignment = xw.constants.HAlign.xlHAlignCenter
         # sh.tables.add(sh.range(startCell).expand('table'), table_style_name='TableStyleMedium13', has_headers=True, )
         logging.info(f'Dashboard sheet updated: {tableName}')
-        # wb.save()
+        logging.info(f'updating timestamp for sheet: {sheetName}')
+        sh[timeStampCell].value = f'As on: {dt.datetime.now().strftime("%d/%m/%Y %H:%M:%S")}'
+        sh[timeStampCell].wrap_text = True
         logging.info(f'Workbook saved: {sh.name}')
     except FileExistsError as e:
         raise e
