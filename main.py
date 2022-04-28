@@ -54,23 +54,28 @@ def processInput():
     mcFutDf = moneycontrol.getDataFrame('futures', input['expiry_date'])
     optionsDashboardDf = futuresDashboardDf = pd.DataFrame()
     for stockName in stockNames:
-        logging.debug(f'calling getOptionChain for {stockName}')
-        optionsChainData = nse.getOptionChain(stockName, expiryDate, recordsLimitUpperLower=input['stocks']['oi_records_upper_lower_limit'], priceMultiple=input['stocks']['price_multiple'])
-        logging.debug(f'calling calculateAndUpdate for {stockName}')
-        updatedDf = calculateAndUpdateOptionChainDf(stockName, optionsChainData)
-        logging.debug(f'calling getSupportResistancePricesCePe for {stockName}')
-        supportResistancePrices = getSupportResistancePricesCePe(updatedDf)
-        logging.debug(f'calling createDashboardDf for {stockName}')
-        optionsDashboardDf = pd.concat([optionsDashboardDf, createOptionsDashboardDf(stockName, updatedDf, mcOptsDf)])
-        logging.debug(f'calling appendToDashboardDF for {stockName}')
-        futuresDashboardDf = pd.concat([futuresDashboardDf, createFuturesDashboardDf(stockName, mcFutDf, supportResistancePrices)]).sort_values(by='SYMBOL')
-        # dashBoardDf = appendToDashboardDF(dashBoardDf, stockName, updatedDf, supportResistancePrices)
-        logging.debug(f'calling createUpdateSheet for {stockName}')
-        createUpdateSheet(outputFile, stockName, updatedDf, startCell='A1')
+        try:
+            logging.debug(f'calling getOptionChain for {stockName}')
+            optionsChainData = pd.DataFrame(columns=[ 'strikePrice ', 'expiryDate ', 'PE.openInterest ', 'PE.changeinOpenInterest ', 'PE.pchangeinOpenInterest ', 'PE.totalTradedVolume ', 'PE.impliedVolatility ', 'PE.lastPrice ', 'PE.change ', 'PE.pChange ', 'PE.underlyingValue ', 'CE.openInterest ', 'CE.changeinOpenInterest ', 'CE.pchangeinOpenInterest ', 'CE.totalTradedVolume ', 'CE.impliedVolatility ', 'CE.lastPrice ', 'CE.change ', 'CE.pChange ', 'CE.underlyingValue ', 'PE_WRITING ', 'CE_WRITING ', 'PE_UNWINDING ', 'CE_UNWINDING'])
+            optionsChainData = nse.getOptionChain(stockName, expiryDate, recordsLimitUpperLower=input['stocks']['oi_records_upper_lower_limit'], priceMultiple=input['stocks']['price_multiple'])
+            logging.debug(f'calling calculateAndUpdate for {stockName}')
+            updatedDf = calculateAndUpdateOptionChainDf(stockName, optionsChainData)
+            logging.debug(f'calling getSupportResistancePricesCePe for {stockName}')
+            supportResistancePrices = getSupportResistancePricesCePe(updatedDf)
+            logging.debug(f'calling createDashboardDf for {stockName}')
+            optionsDashboardDf = pd.concat([optionsDashboardDf, createOptionsDashboardDf(stockName, updatedDf, mcOptsDf)])
+            logging.debug(f'calling appendToDashboardDF for {stockName}')
+            futuresDashboardDf = pd.concat([futuresDashboardDf, createFuturesDashboardDf(stockName, mcFutDf, supportResistancePrices)]).sort_values(by='SYMBOL')
+            # dashBoardDf = appendToDashboardDF(dashBoardDf, stockName, updatedDf, supportResistancePrices)
+            logging.debug(f'calling createUpdateSheet for {stockName}')
+            createUpdateSheet(outputFile, stockName, updatedDf, startCell='A1')
+        except Exception as e:
+            logging.debug(f'error occurred while processing {stockName}: {traceback.format_exc()}')
+            continue
     logging.debug(f'calling createUpdateDashboardSheet')
     createUpdateDashboardTable(outputFile, sheetName = 'Dashboard', tableName = 'OptionsDashboard', startCell = 'A1', dataFrame = optionsDashboardDf)
     createUpdateDashboardTable(outputFile, sheetName = 'Dashboard', tableName = 'FuturesDashboard', startCell = 'K1', dataFrame = futuresDashboardDf)
-    createUpdateSheet(input['output_excel_file'], 'Stock Options', mcOptsDf, startCell='A2')
+    createUpdateSheet(input['output_excel_file'], 'Stock Options', mcOptsDf, startCell='A1')
 
 if __name__ == '__main__':
     while True:
