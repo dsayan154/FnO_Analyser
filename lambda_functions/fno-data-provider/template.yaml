@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  fno_data_provider
+
+  SAM Template for fno_data_provider
+
+Globals:
+  Function:
+    Runtime: python3.9
+    Handler: fetch.lambda_handler
+    Environment:
+      Variables:
+        LOG_LEVEL: DEBUG
+
+Resources:
+  DataFetcherFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          ENVIRONMENT: prod
+          CONFIG_PARAMETER_PREFIX: '/fno-stock-data-provider'
+          CONFIG_PARAMETER_NAME: 'data-fetcher-config'
+          NSE_HOLIDAY_PARAMETER_NAME: 'nse-holiday-list'
+      CodeUri: './data_fetcher'
+  

@@ -1,0 +1,66 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: CFN Template for FnO Analyser Lambda Functions Configs in Parameter Store
+Resources: 
+  FnODataFetcherGeneralConfig:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: '/fno-stock-data-provider/prod/data-fetcher-config'
+      Description: 'config for data_fetcher function'
+      Type: String
+      Value: |
+        urlConfigs:
+          stocks:
+            options:
+              url: 'https://www.moneycontrol.com/stocks/fno/marketstats/options/active_value/homebody.php?opttopic=active_value&optinst=stkopt&sel_mth=all&sort_order=0'
+              url_headers:
+                user-agent: fno_analyser
+              tbl_attr: 
+                class: tblList
+              cols_to_split: 
+                'High Low': 
+                - 'High'
+                - 'Low'
+                'Open Int Chg':
+                - 'OI Change'
+                - 'OI Change %'
+                'Vol - Shares Contracts':
+                - 'Vol'
+                - 'Shares Contracts'
+                'Change Chg %':
+                - 'Change'
+                - 'pChange'
+            futures:
+              url: 'https://www.moneycontrol.com/stocks/fno/marketstats/futures/most_active/homebody.php?opttopic=most_active&optinst=stkfut&sel_mth=all&sort_order=0'
+              url_headers:
+                user-agent: fno_analyser
+              tbl_attr: 
+                class: tblList
+              cols_to_split: 
+                'High Low': 
+                - 'High'
+                - 'Low'
+                'Open Int Chg': 
+                - 'OI Change'
+                - 'OI Change %'
+                'Vol - Shares Contracts': 
+                - 'Vol'
+                - 'Shares Contracts'
+                'Change Chg %':
+                - 'Change'
+                - 'pChange'
+      Tags:
+        CreatedBy: CFN
+        Environment: Prod
+  
+  NSEHolidayList:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: '/fno-stock-data-provider/prod/nse-holiday-list'
+      Description: 'Declared list of NSE holidays in 2022'
+      Type: StringList
+      Value: 26-Jan-2022,01-Mar-2022,18-Mar-2022,01-Apr-2022,14-Apr-2022,14-Apr-2022,15-Apr-2022,03-May-2022,16-May-2022,09-Aug-2022,15-Aug-2022,16-Aug-2022,31-Aug-2022,05-Oct-2022,24-Oct-2022,26-Oct-2022,08-Nov-2022
+      AllowedPattern: ^([0-2][0-9]|[3][0-1])-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\d{4}$
+      Tags:
+        CreatedBy: CFN
+        Environment: Prod
