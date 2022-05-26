@@ -9,24 +9,35 @@ Resources:
       Description: 'config for data_fetcher function'
       Type: String
       Value: |
+        stocksToIgnore:
+        - ZYDUSLIFE
+        - CADILAHC
         urlConfigs:
           stocks:
             options:
-              url: 'https://www.moneycontrol.com/stocks/fno/marketstats/options/active_value/homebody.php?opttopic=active_value&optinst=stkopt&sel_mth=all&sort_order=0'
+              urlExpiry1: 'https://www.moneycontrol.com/stocks/fno/marketstats/options/active_value/homebody.php?opttopic=active_value&optinst=stkopt&sel_mth=1&sort_order=0'
+              urlExpiry2: 'https://www.moneycontrol.com/stocks/fno/marketstats/options/active_value/homebody.php?opttopic=active_value&optinst=stkopt&sel_mth=2&sort_order=0'
+              nextExpiryDateIncludeDays : 8
+              uniqueColumnsWithoutSpaces:
+              - Symbol
+              - ExpiryDate
+              - StrikePrice
               url_headers:
                 user-agent: fno_analyser
               tbl_attr: 
                 class: tblList
+              oi_records_upper_lower_limit: 10
+              price_multiple: 1
               cols_to_split: 
                 'High Low': 
                 - 'High'
                 - 'Low'
                 'Open Int Chg':
-                - 'OI Change'
-                - 'OI Change %'
+                - 'OIChange'
+                - 'pOIChange'
                 'Vol - Shares Contracts':
                 - 'Vol'
-                - 'Shares Contracts'
+                - 'SharesContracts'
                 'Change Chg %':
                 - 'Change'
                 - 'pChange'
@@ -41,16 +52,15 @@ Resources:
                 - 'High'
                 - 'Low'
                 'Open Int Chg': 
-                - 'OI Change'
-                - 'OI Change %'
+                - 'OIChange'
+                - 'pOIChange'
                 'Vol - Shares Contracts': 
                 - 'Vol'
-                - 'Shares Contracts'
+                - 'SharesContracts'
                 'Change Chg %':
                 - 'Change'
                 - 'pChange'
       Tags:
-        CreatedBy: CFN
         Environment: Prod
   
   NSEHolidayList:
@@ -62,5 +72,39 @@ Resources:
       Value: 26-Jan-2022,01-Mar-2022,18-Mar-2022,01-Apr-2022,14-Apr-2022,14-Apr-2022,15-Apr-2022,03-May-2022,16-May-2022,09-Aug-2022,15-Aug-2022,16-Aug-2022,31-Aug-2022,05-Oct-2022,24-Oct-2022,26-Oct-2022,08-Nov-2022
       AllowedPattern: ^([0-2][0-9]|[3][0-1])-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\d{4}$
       Tags:
-        CreatedBy: CFN
+        Environment: Prod
+  ActivityConditions:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: '/fno-stock-data-provider/prod/activity-conditions'
+      Description: 'Criterias for options activity on stocks'
+      Type: String
+      Value: |
+        WRITINGCRITERIAS:
+        - price_change_percent: -5
+          oi_change_percent: 15
+          start_time: '9:15:30'
+          end_time: '11:30:30'
+        - price_change_percent: -10
+          oi_change_percent: 25
+          start_time: '11:30:30'
+          end_time: '12:30:30'
+        - price_change_percent: -20
+          oi_change_percent: 50
+          start_time: '12:30:30'
+          end_time: '15:30:00'
+        UNWINDINGCRITERIAS:
+        - price_change_percent: 5
+          oi_change_percent: -15
+          start_time: '9:15:30'
+          end_time: '11:30:30'
+        - price_change_percent: 10
+          oi_change_percent: -25
+          start_time: '11:30:30'
+          end_time: '12:30:30'
+        - price_change_percent: 20
+          oi_change_percent: -50
+          start_time: '12:30:30'
+          end_time: '15:30:00'
+      Tags:
         Environment: Prod
