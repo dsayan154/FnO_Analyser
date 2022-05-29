@@ -41,6 +41,8 @@ Resources:
                 'Change Chg %':
                 - 'Change'
                 - 'pChange'
+              cols_to_rename:
+                'Value (Rs. Lakh)': 'Value'
             futures:
               url: 'https://www.moneycontrol.com/stocks/fno/marketstats/futures/most_active/homebody.php?opttopic=most_active&optinst=stkfut&sel_mth=all&sort_order=0'
               url_headers:
@@ -57,9 +59,9 @@ Resources:
                 'Vol - Shares Contracts': 
                 - 'Vol'
                 - 'SharesContracts'
-                'Change Chg %':
-                - 'Change'
-                - 'pChange'
+              cols_to_rename:
+                'Chge %': 'pChange'
+                'Value (Rs. Lakh)': 'Value'
       Tags:
         Environment: Prod
   
