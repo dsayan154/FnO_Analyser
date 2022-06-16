@@ -3,6 +3,7 @@ from datetime import datetime
 
 logLevel = os.getenv('LOG_LEVEL', 'INFO').upper()
 environment = os.getenv('ENVIRONMENT', 'prod')
+configParameterPrefixShared = os.getenv('CONFIG_PARAMETER_PREFIX', '/fno-shared-data')
 configParameterPrefix = os.getenv('CONFIG_PARAMETER_PREFIX', '/fno-stock-data-provider')
 configParameterName = os.getenv('CONFIG_PARAMETER_NAME', 'data-fetcher-config')
 openingPriceFileName = os.getenv('OPENING_PRICE_FILE_NAME', 'opening_prices.json')
@@ -19,7 +20,7 @@ def lambda_handler():
 def start():
   logging.info("creating SSM client to fetch the futures url from f'{configParameterPrefix}/{environment}/{configParameterName} and NSE Holiday List from f'{configParameterPrefix}/{environment}/{nseHolidaysParameterName}' parameters")
   ssm = boto3.client('ssm')
-  nseHolidayList = ssm.get_parameter(Name=f'{configParameterPrefix}/{environment}/{nseHolidaysParameterName}')['Parameter']['Value'].split(',')
+  nseHolidayList = ssm.get_parameter(Name=f'{configParameterPrefixShared}/{environment}/{nseHolidaysParameterName}')['Parameter']['Value'].split(',')
   now = datetime.now()
   today = now.strftime('%d-%b-%Y')
   logging.info('Checking if today is a holiday')
@@ -28,7 +29,7 @@ def start():
       exit(0)
   yamlConfig = ssm.get_parameter(Name=f'{configParameterPrefix}/{environment}/{configParameterName}')['Parameter']['Value']
   config = yaml.safe_load(yamlConfig)
-  url = config['urlConfigs']['stocks']['futures']['url']
+  url = config['configs']['futures']['url']
   logging.debug(f'futures url: {url}')
   df = pd.read_html(url)[0]
   symbols = pd.Series(pd.unique(df['Symbol']))
