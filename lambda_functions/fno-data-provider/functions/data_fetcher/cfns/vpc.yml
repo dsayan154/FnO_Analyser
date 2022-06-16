@@ -147,6 +147,18 @@ Resources:
           IpProtocol: tcp
           FromPort: 22
           ToPort: 22
+  
+  DBSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties: 
+      Description: This creates a secret for connecting to MariaDB
+      Name: prod/fno_analyser/mariadb
+      SecretString: '{"username":"admin","password":"Passw0rd#123","engine":"mariadb","host":"3.111.197.200","port":"3306","dbname":"fno_analyser"}'
+      Tags: 
+        - Key: created_by
+          Value: Ananya
+          Key: creation_method
+          Value: cloudformation
 
   DbInstance:
     Type: AWS::EC2::Instance
