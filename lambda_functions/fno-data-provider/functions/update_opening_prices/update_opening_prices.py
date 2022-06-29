@@ -14,7 +14,7 @@ symbolSuffix = '.NS'
 logging.basicConfig(level=logLevel)
 stocksToIgnore = ['ZYDUSLIFE','CADILAHC']
 
-def lambda_handler():
+def lambda_handler(event, context):
   start()
 
 def start():
