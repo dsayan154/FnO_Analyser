@@ -1,5 +1,4 @@
-import logging, os, yaml, sqlalchemy, json, pandas as pd, yfinance as yf
-from datetime import datetime
+import json, os, logging
 from common.instrument import Instrument
 from common.database import DataBase
 from common.aws import AWS
@@ -35,6 +34,10 @@ def raiseForWrongValue(msg:str = 'Wrong Value Provided'):
   raise ValueError(msg)
 
 def start():
+  market = Market(nseHolidayListSSMParameter=os.getenv('NSE_HOLIDAY_LIST_PARAM','/fno-shared-data/prod/nse-holiday-list'))
+  if market.isHolidayToday():
+    logging.warn('Today is a holiday')
+    exit(0)
   purpose = os.getenv('PURPOSE', 'UPDATE_OPTION_CHAIN')
   instrmntKind = os.getenv('INSTRUMENT_KIND', 'STOCK')
   dbDetails = {  
@@ -107,5 +110,4 @@ def lambda_handler(event, context):
     ------
         dict: Object containing the current price of the stock
     """
-    # Check current price of the stock
     start()
