@@ -6,6 +6,7 @@ class AWS:
     __setClientSwitches = {
       's3': self.__setS3Client,
       'ssm': self.__setSSMClient,
+      'secretsmanager': self.__setSecretsManagerClient,
       'default': self.__wrongResourceType
     }
     for arg in args:
@@ -17,8 +18,15 @@ class AWS:
   def __setSSMClient(self):
     self.ssm = boto3.client('ssm')
   
+  def __setSecretsManagerClient(self):
+    session = boto3.session.Session()
+    self.secretsmanager = session.client(
+        service_name = 'secretsmanager',
+        region_name = session.region_name
+    )
+  
   def __wrongResourceType(self):
-    raise ValueError('wrong aws resource type passed to initialize the AWS class')
+    raise ValueError('invalid aws resource type passed to initialize the AWS class')
   
   def getDetailsFromSSM(self, parameterName: str) -> str:
     data = self.ssm.get_parameter(Name=parameterName)['Parameter']['Value']
@@ -38,21 +46,14 @@ class AWS:
         logging.error('error getting data from s3')
     return str(resp['Body'].read().decode('utf-8'))
   
-  def getJsonDataFromS3(self, s3BucketName:str, s3BucketFileName:str):
-    s3JsonData = json.loads(self.getDataFroms3(s3BucketName, s3BucketFileName))
+  def getJsonDataFromS3(self, s3BucketName:str, s3BucketFileName:str) -> dict:
+    s3JsonData:dict = json.loads(self.getDataFroms3(s3BucketName, s3BucketFileName))
     return s3JsonData
   
-  def getDataFromSecretsManager(self, secretName: str, region: str) -> str:
-    region_name = region
-    secret_name = secretName
-    session = boto3.session.Session()
-    client = session.client(
-        service_name='secretsmanager',
-        region_name=region_name
-    )
+  def getDataFromSecretsManager(self, secretName: str) -> str:
     try:
-        get_secret_value_response = client.get_secret_value(
-            SecretId=secret_name
+        get_secret_value_response = self.secretsmanager.get_secret_value(
+            SecretId=secretName
         )
     except ClientError as e:
         if e.response['Error']['Code'] == 'DecryptionFailureException':

@@ -2,73 +2,138 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: CFN Template for FnO Analyser Lambda Functions Configs in Parameter Store
 Resources: 
-  FnODataFetcherGeneralConfig:
+  FnOStockDataFetcherGeneralConfig:
     Type: AWS::SSM::Parameter
     Properties:
       Name: '/fno-stock-data-provider/prod/data-fetcher-config'
-      Description: 'config for data_fetcher function'
+      Description: 'config for stock_data_provider function'
       Type: String
       Value: |
-        stocksToIgnore:
-        - ZYDUSLIFE
+        symbolsToExclude:
         - CADILAHC
-        urlConfigs:
-          stocks:
-            options:
-              urlExpiry1: 'https://www.moneycontrol.com/stocks/fno/marketstats/options/active_value/homebody.php?opttopic=active_value&optinst=stkopt&sel_mth=1&sort_order=0'
-              urlExpiry2: 'https://www.moneycontrol.com/stocks/fno/marketstats/options/active_value/homebody.php?opttopic=active_value&optinst=stkopt&sel_mth=2&sort_order=0'
-              nextExpiryDateIncludeDays : 8
-              uniqueColumnsWithoutSpaces:
-              - Symbol
-              - ExpiryDate
-              - StrikePrice
-              url_headers:
-                user-agent: fno_analyser
-              tbl_attr: 
-                class: tblList
-              oi_records_upper_lower_limit: 10
-              price_multiple: 1
-              cols_to_split: 
-                'High Low': 
-                - 'High'
-                - 'Low'
-                'Open Int Chg':
-                - 'OIChange'
-                - 'pOIChange'
-                'Vol - Shares Contracts':
-                - 'Vol'
-                - 'SharesContracts'
-                'Change Chg %':
-                - 'Change'
-                - 'pChange'
-              cols_to_rename:
-                'Value (Rs. Lakh)': 'Value'
-            futures:
-              url: 'https://www.moneycontrol.com/stocks/fno/marketstats/futures/most_active/homebody.php?opttopic=most_active&optinst=stkfut&sel_mth=all&sort_order=0'
-              url_headers:
-                user-agent: fno_analyser
-              tbl_attr: 
-                class: tblList
-              cols_to_split: 
-                'High Low': 
-                - 'High'
-                - 'Low'
-                'Open Int Chg': 
-                - 'OIChange'
-                - 'pOIChange'
-                'Vol - Shares Contracts': 
-                - 'Vol'
-                - 'SharesContracts'
-              cols_to_rename:
-                'Chge %': 'pChange'
-                'Value (Rs. Lakh)': 'Value'
+        - MOTHERSUMI
+        symbolsAndExpiryDatesFrom: futures
+        configs:
+          options:
+            activityConditionsParameter: '/fno-stock-data-provider/prod/activity-conditions'
+            urls:
+            - 'https://www.moneycontrol.com/stocks/fno/marketstats/options/active_value/homebody.php?opttopic=active_value&optinst=stkopt&sel_mth=1&sort_order=0'
+            - 'https://www.moneycontrol.com/stocks/fno/marketstats/options/active_value/homebody.php?opttopic=active_value&optinst=stkopt&sel_mth=2&sort_order=0'
+            daysBeforeConideringNextExpData : 8
+            uniqueColumnsWithoutSpaces:
+            - Symbol
+            - ExpiryDate
+            - StrikePrice
+            url_headers:
+              user-agent: fno_analyser
+            tbl_attr: 
+              class: tblList
+            oi_records_upper_lower_limit_percent: 10
+            price_multiple: 1
+            cols_to_split: 
+              'High Low': 
+              - 'High'
+              - 'Low'
+              'Open Int Chg':
+              - 'OIChange'
+              - 'pOIChange'
+              'Vol - Shares Contracts':
+              - 'Vol'
+              - 'SharesContracts'
+              'Change Chg %':
+              - 'Change'
+              - 'pChange'
+            cols_to_rename:
+              'Value (Rs. Lakh)': 'Value'
+          futures:
+            urls:
+            - 'https://www.moneycontrol.com/stocks/fno/marketstats/futures/most_active/homebody.php?opttopic=most_active&optinst=stkfut&sel_mth=all&sort_order=0'
+            url_headers:
+              user-agent: fno_analyser
+            tbl_attr: 
+              class: tblList
+            cols_to_split: 
+              'High Low': 
+              - 'High'
+              - 'Low'
+              'Open Int Chg': 
+              - 'OIChange'
+              - 'pOIChange'
+              'Vol - Shares Contracts': 
+              - 'Vol'
+              - 'SharesContracts'
+            cols_to_rename:
+              'Chge %': 'pChange'
+              'Value (Rs. Lakh)': 'Value'
       Tags:
         Environment: Prod
-  
+  FnOIndexDataFetcherGeneralConfig:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: '/fno-index-data-provider/prod/data-fetcher-config'
+      Description: 'config for index_data_provider function'
+      Type: String
+      Value: |
+        symbolsToInclude:
+        - NIFTY
+        - BANKNIFTY
+        symbolsAndExpiryDatesFrom: options
+        configs:
+          options:
+            urls:
+            - 'https://www.moneycontrol.com/stocks/fno/marketstats/options/active_value/homebody.php?opttopic=active_value&optinst=indopt&sel_mth=all&sort_order=0'
+            daysBeforeConideringNextExpData : 3
+            uniqueColumnsWithoutSpaces:
+            - Symbol
+            - ExpiryDate
+            - StrikePrice
+            url_headers:
+              user-agent: fno_analyser
+            tbl_attr: 
+              class: tblList
+            oi_records_upper_lower_limit_percent: 5
+            price_multiple: 100
+            cols_to_split: 
+              'High Low': 
+              - 'High'
+              - 'Low'
+              'Open Int Chg':
+              - 'OIChange'
+              - 'pOIChange'
+              'Vol - Shares Contracts':
+              - 'Vol'
+              - 'SharesContracts'
+              'Change Chg %':
+              - 'Change'
+              - 'pChange'
+            cols_to_rename:
+              'Value (Rs. Lakh)': 'Value'
+          futures:
+            urls: 
+            - 'https://www.moneycontrol.com/stocks/fno/marketstats/futures/active_value/homebody.php?opttopic=active_value&optinst=indfut&sel_mth=all&sort_order=0'
+            url_headers:
+              user-agent: fno_analyser
+            tbl_attr: 
+              class: tblList
+            cols_to_split: 
+              'High Low': 
+              - 'High'
+              - 'Low'
+              'Open Int Chg': 
+              - 'OIChange'
+              - 'pOIChange'
+              'Vol - Shares Contracts': 
+              - 'Vol'
+              - 'SharesContracts'
+            cols_to_rename:
+              'Chge %': 'pChange'
+              'Value (Rs. Lakh)': 'Value'
+      Tags:
+        Environment: Prod
   NSEHolidayList:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: '/fno-stock-data-provider/prod/nse-holiday-list'
+      Name: '/fno-shared-data/prod/nse-holiday-list'
       Description: 'Declared list of NSE holidays in 2022'
       Type: StringList
       Value: 26-Jan-2022,01-Mar-2022,18-Mar-2022,01-Apr-2022,14-Apr-2022,14-Apr-2022,15-Apr-2022,03-May-2022,16-May-2022,09-Aug-2022,15-Aug-2022,16-Aug-2022,31-Aug-2022,05-Oct-2022,24-Oct-2022,26-Oct-2022,08-Nov-2022
@@ -108,5 +173,20 @@ Resources:
           oi_change_percent: -50
           start_time: '12:30:30'
           end_time: '15:30:00'
+      Tags:
+        Environment: Prod
+  YahooFinanceSymbols:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: '/fno-shared-data/prod/yahoo-finance-symbols-metadata'
+      Description: 'Details for asset symbols from Yahoo Finance'
+      Type: String
+      Value: |
+        kinds:
+          stock: 
+            suffix: '.NS'
+          index:
+            NIFTY: '^NSEI'
+            BANKNIFTY: '^NSEBANK'
       Tags:
         Environment: Prod

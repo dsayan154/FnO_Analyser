@@ -108,8 +108,7 @@ class Instrument:
   def getOpeningPrices(self, s3BucketName:str=None, s3BucketFileName:str=None) -> dict:
     openingPricesDict: dict = None
     if s3BucketName and s3BucketFileName:
-      s3JsonData = self.awsClient.getJsonDataFromS3(s3BucketName, s3BucketFileName)
-      openingPricesDict = s3JsonData['openingPrices']
+      openingPricesDict = self.awsClient.getJsonDataFromS3(s3BucketName, s3BucketFileName)
     else:
       yfTickers:str = ''
       symbols = self._getSymbols()
