@@ -18,4 +18,4 @@ class Market:
       logging.error('it seems \'nseHolidayListSSMParameter\' was passed to initialize the market class')
     today = dt.now().strftime('%d-%b-%Y')
     logging.info('Checking if today is a holiday')
-    return true if today in nseHolidayList else false
+    return True if today in nseHolidayList else False
